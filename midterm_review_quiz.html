@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Midterm Review — Weeks 1-7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cambria:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#21295C;
+    --primary:#065A82;
+    --secondary:#1C7293;
+    --bg:#F3F7F9;
+    --card:#FFFFFF;
+    --text:#23303B;
+    --muted:#6B7A85;
+    --correct-bg:#E1F3EA;
+    --correct-text:#1E8A5F;
+    --wrong-bg:#FDEDEB;
+    --wrong-text:#A23B2E;
+    --border:#DCE7EC;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.55;
+  }
+  .wrap{ max-width:760px; margin:0 auto; padding:40px 20px 80px; }
+
+  header{
+    background:linear-gradient(160deg, var(--dark), #2E3B73);
+    border-radius:18px;
+    padding:32px 30px;
+    color:#fff;
+    margin-bottom:24px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute; top:-50px; right:-50px;
+    width:180px; height:180px; border-radius:50%;
+    background:radial-gradient(circle, rgba(28,114,147,0.55), transparent 70%);
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    color:#7FD8CE; margin-bottom:8px; position:relative;
+  }
+  header h1{
+    font-family:'Cambria', serif;
+    font-size:26px; margin:0 0 8px; position:relative;
+  }
+  header p{
+    margin:0; color:#C7D9E0; font-size:14px; max-width:520px; position:relative;
+  }
+
+  /* Progress */
+  .progress-row{ display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+  .progress-track{ flex:1; height:8px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .progress-fill{ height:100%; background:var(--secondary); border-radius:99px; transition:width 0.3s ease; }
+  .progress-label{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--muted); white-space:nowrap; }
+
+  /* Week badge */
+  .week-badge{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace; font-size:11px; font-weight:600;
+    background:#EAF3F5; color:var(--secondary);
+    padding:4px 12px; border-radius:20px; margin-bottom:14px;
+  }
+
+  /* Question card */
+  .qcard{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:28px 26px;
+    margin-bottom:20px;
+  }
+  .qtext{
+    font-family:'Cambria', serif; color:var(--dark); font-size:19px;
+    margin:0 0 20px; line-height:1.4;
+  }
+  .qtext code{
+    background:#EAF3F5; color:var(--secondary);
+    padding:2px 6px; border-radius:5px;
+    font-family:'IBM Plex Mono', monospace; font-size:16px;
+  }
+
+  .option{
+    display:block; width:100%; text-align:left;
+    background:var(--bg); border:1.5px solid var(--border);
+    border-radius:10px; padding:13px 16px; margin-bottom:10px;
+    font-family:'IBM Plex Sans', sans-serif; font-size:14.5px; color:var(--text);
+    cursor:pointer; transition:border-color 0.15s ease, background 0.15s ease;
+  }
+  .option:hover:not(.locked){ border-color:var(--secondary); background:#EAF3F5; }
+  .option.correct{ background:var(--correct-bg); border-color:var(--correct-text); color:var(--correct-text); font-weight:600; }
+  .option.wrong{ background:var(--wrong-bg); border-color:var(--wrong-text); color:var(--wrong-text); font-weight:600; }
+  .option.locked{ cursor:default; }
+  .option.dim{ opacity:0.5; }
+
+  .explain{
+    margin-top:16px; padding:14px 16px;
+    background:#EAF3F5; border-radius:10px;
+    font-size:13.5px; color:var(--text); display:none;
+  }
+  .explain.show{ display:block; }
+  .explain b{ color:var(--secondary); }
+
+  .nav-row{ display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
+  .btn{
+    font-family:'IBM Plex Sans', sans-serif; font-weight:600; font-size:14px;
+    padding:11px 22px; border-radius:10px; border:none; cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .btn-primary{ background:var(--primary); color:#fff; }
+  .btn-primary:hover{ background:var(--secondary); }
+  .btn-primary:disabled{ background:#B7C4CB; cursor:not-allowed; }
+  .btn-ghost{ background:none; color:var(--muted); }
+
+  /* Results screen */
+  .results{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:40px 30px; text-align:center;
+  }
+  .results .score{
+    font-family:'Cambria', serif; font-size:48px; color:var(--dark); margin:10px 0;
+  }
+  .results h2{ font-family:'Cambria', serif; color:var(--dark); margin:0 0 4px; }
+  .results p{ color:var(--muted); font-size:14.5px; }
+  .week-breakdown{
+    text-align:left; margin-top:28px; border-top:1px solid var(--border); padding-top:20px;
+  }
+  .week-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 0; font-size:14px; border-bottom:1px solid #EEF3F5;
+  }
+  .week-row:last-child{ border-bottom:none; }
+  .week-row .wk-name{ color:var(--text); }
+  .week-row .wk-score{ font-family:'IBM Plex Mono', monospace; font-weight:600; color:var(--secondary); }
+  .week-row .wk-score.weak{ color:var(--wrong-text); }
+
+  footer{
+    text-align:center; color:var(--muted); font-size:12px;
+    font-family:'IBM Plex Mono', monospace; margin-top:32px;
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">CSE 410 · Mobile Computing</div>
+    <h1>Midterm Review — Weeks 1 through 7</h1>
+    <p>A quick run through every major concept so far. Answer each question, check the explanation, and see which weeks are worth a second look before the exam.</p>
+  </header>
+
+  <div id="quiz-area"></div>
+
+  <footer>CSE 410 &middot; Mobile Computing &middot; Midterm Review</footer>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  // ---------------- WEEK 1 ----------------
+  {
+    week: "Week 1 — Getting Started",
+    text: "What's the actual difference between hot reload and hot restart?",
+    options: [
+      "Hot reload updates your code while keeping the app's current state; hot restart wipes everything and starts over from main()",
+      "They do exactly the same thing, just different button icons",
+      "Hot restart is always faster than hot reload",
+      "Hot reload only works on Android, hot restart only works on iOS",
+    ],
+    correct: 0,
+    explain: "Hot reload injects new code while preserving whatever's currently in memory — your screen, your typed text, your navigation history. Hot restart destroys the running app and starts fresh, wiping all of that.",
+  },
+  {
+    week: "Week 1 — Getting Started",
+    text: "Which statement best describes Flutter itself?",
+    options: [
+      "A database management system",
+      "A framework for building natively-compiled apps for mobile, web, and desktop from one codebase",
+      "A tool exclusively for Android development",
+      "A backend server language",
+    ],
+    correct: 1,
+    explain: "Flutter's whole pitch is one codebase, written in Dart, compiling to real native apps across multiple platforms — not a backend tool, not platform-exclusive.",
+  },
+  // ---------------- WEEK 2 ----------------
+  {
+    week: "Week 2 — Dart Fundamentals",
+    text: "What does adding a <code>?</code> after a type, like <code>String?</code>, mean?",
+    options: [
+      "The variable is optional and can be deleted later",
+      "The variable can hold that type OR null",
+      "The variable is read-only",
+      "It has no effect — purely stylistic",
+    ],
+    correct: 1,
+    explain: "String on its own can never be null — Dart guarantees it. String? explicitly allows null as a possible value, and Dart forces you to check before using it.",
+  },
+  {
+    week: "Week 2 — Dart Fundamentals",
+    text: "What does a <code>for-in</code> loop actually do?",
+    options: [
+      "Repeats a fixed number of times, counting up from zero",
+      "Goes through each element in a collection, one at a time",
+      "Only works on numbers",
+      "Runs exactly once",
+    ],
+    correct: 1,
+    explain: "for (var item in myList) walks through every element of a collection in order, giving you direct access to each one — no manual index counting required.",
+  },
+  {
+    week: "Week 2 — Dart Fundamentals",
+    text: "In a Dart class, what is a constructor's job?",
+    options: [
+      "To describe what the class looks like on screen",
+      "To run once, when an object is first created, and set up its initial field values",
+      "To delete an object when it's no longer needed",
+      "To hold the class's data permanently",
+    ],
+    correct: 1,
+    explain: "A constructor is the special function Dart calls exactly once, at creation time, typically to assign values to the object's fields.",
+  },
+  // ---------------- WEEK 3 ----------------
+  {
+    week: "Week 3 — Flutter Widgets",
+    text: "What's the real difference between StatelessWidget and StatefulWidget?",
+    options: [
+      "StatelessWidget is faster, StatefulWidget is slower",
+      "StatelessWidget is drawn once and never changes on its own; StatefulWidget holds data that can change and redraws when it does",
+      "There's no real difference, just naming preference",
+      "StatefulWidget can only be used for buttons",
+    ],
+    correct: 1,
+    explain: "This is the core split from Week 3 and 5: Stateless = fixed, drawn once. Stateful = has a State object holding changeable data, redrawn via setState().",
+  },
+  {
+    week: "Week 3 — Flutter Widgets",
+    text: "What's typically the very first, outermost widget of a Flutter screen?",
+    options: [
+      "Text",
+      "Container",
+      "Scaffold",
+      "ListTile",
+    ],
+    correct: 2,
+    explain: "Scaffold provides the basic skeleton of a screen — an app bar, a body, and other standard structure — and is almost always the root of a screen's widget tree.",
+  },
+  // ---------------- WEEK 4 ----------------
+  {
+    week: "Week 4 — Layout & Styling",
+    text: "What specific problem does the <code>Expanded</code> widget solve?",
+    options: [
+      "It adds a border around a widget",
+      "It gives a widget a share of whatever space is left over inside a Row or Column",
+      "It makes text bigger",
+      "It centers a widget on the screen",
+    ],
+    correct: 1,
+    explain: "Normally a widget only takes the space it needs. Expanded makes it claim a share of the remaining space instead — the standard fix for overflow errors from fixed-width children.",
+  },
+  {
+    week: "Week 4 — Layout & Styling",
+    text: "Which widget layers its children directly on top of each other, instead of side by side or stacked vertically?",
+    options: [
+      "Row",
+      "Column",
+      "Stack",
+      "ListView",
+    ],
+    correct: 2,
+    explain: "Row arranges horizontally, Column vertically. Stack is the one that layers children on top of one another, like a deck of cards.",
+  },
+  // ---------------- WEEK 5 ----------------
+  {
+    week: "Week 5 — Interactivity & State",
+    text: "What does <code>setState()</code> actually do?",
+    options: [
+      "It changes the underlying value itself",
+      "It tells Flutter to re-run build() so the screen reflects data that already changed",
+      "It saves data permanently to the device",
+      "It only works the first time a screen loads",
+    ],
+    correct: 1,
+    explain: "The value already changed the line before setState() runs. setState() is purely the signal telling Flutter 'redraw this now, using the new value.'",
+  },
+  {
+    week: "Week 5 — Interactivity & State",
+    text: "Why do we call <code>dispose()</code> on a TextEditingController?",
+    options: [
+      "It's required by Dart's syntax, with no real purpose",
+      "To release the resources the controller was holding, once its screen is removed",
+      "To clear the text field's current value",
+      "To submit the form automatically",
+    ],
+    correct: 1,
+    explain: "Every controller you create should be disposed when its widget is removed, to release resources it was holding onto — a genuine best practice, not just boilerplate.",
+  },
+  {
+    week: "Week 5 — Interactivity & State",
+    text: "In a Form's <code>validator</code> function, what does returning <code>null</code> mean?",
+    options: [
+      "The input is invalid",
+      "The input is valid — nothing wrong with it",
+      "The field was left empty",
+      "The Form should reset",
+    ],
+    correct: 1,
+    explain: "Returning null tells Flutter this specific field is fine. Returning a String instead means 'show this text as the error message.'",
+  },
+  // ---------------- WEEK 6 ----------------
+  {
+    week: "Week 6 — Navigation",
+    text: "What does <code>Navigator.push</code> do to the app's screen stack?",
+    options: [
+      "Removes the current screen",
+      "Adds a new screen on top of the stack",
+      "Clears the entire navigation history",
+      "Reloads the current screen",
+    ],
+    correct: 1,
+    explain: "Think of screens as a stack of cards. push adds a new one on top; pop removes the top one, revealing what was underneath.",
+  },
+  {
+    week: "Week 6 — Navigation",
+    text: "What's the correct way to send data back to the screen that opened the current one?",
+    options: [
+      "Navigator.push(context, newValue)",
+      "setState(() => value = newValue)",
+      "Navigator.pop(context, value), captured with await on the original Navigator.push call",
+      "There's no way to do this in Flutter",
+    ],
+    correct: 2,
+    explain: "Navigator.pop's second argument is the value sent back. The original screen captures it with: final result = await Navigator.push(...).",
+  },
+  // ---------------- WEEK 7 ----------------
+  {
+    week: "Week 7 — Data Models & Persistence",
+    text: "Why use <code>ListView.builder</code> instead of a plain <code>ListView(children: [...])</code>?",
+    options: [
+      "It looks different visually",
+      "It only builds the widgets currently needed for the visible area, which matters a lot for long lists",
+      "It's required for any list longer than 2 items",
+      "There's no real difference",
+    ],
+    correct: 1,
+    explain: "A plain ListView builds every child immediately, even off-screen ones. .builder only builds what's actually needed right now, building more as the user scrolls — far more efficient for long lists.",
+  },
+  {
+    week: "Week 7 — Data Models & Persistence",
+    text: "What is a data model class (like Student or HabitItem) mainly for?",
+    options: [
+      "Making the app run faster",
+      "Bundling multiple related pieces of data together into one reusable, named 'thing'",
+      "Replacing the need for a build() method",
+      "Only for showing text on screen",
+    ],
+    correct: 1,
+    explain: "Instead of separate loose variables, a data model class groups related fields together under one name — the same pattern from Student, HabitItem, and every model class this semester.",
+  },
+  {
+    week: "Week 7 — Data Models & Persistence",
+    text: "What does the <code>shared_preferences</code> package actually let your app do?",
+    options: [
+      "Share data between different users of the app",
+      "Save small pieces of data so they survive the app being fully closed",
+      "Automatically back up your code to GitHub",
+      "Speed up network requests",
+    ],
+    correct: 1,
+    explain: "It writes small key-value pairs to the device's own storage, so they're still there the next time the app opens — even after it's been fully closed.",
+  },
+  {
+    week: "Week 7 — Data Models & Persistence",
+    text: "What's the most reliable way to prove a saved value actually reached the device's storage, not just memory?",
+    options: [
+      "A hot reload",
+      "A hot restart alone is fully conclusive on its own",
+      "Fully closing the app and reopening it (a hot restart is a decent quick check, but the app's process stays alive)",
+      "There's no way to verify this",
+    ],
+    correct: 2,
+    explain: "Hot reload keeps everything in memory, proving nothing. Hot restart clears your Dart variables, which is a useful quick check — but the strongest proof is a full close and reopen, a genuinely new process reading from disk.",
+  },
+];
+
+let current = 0;
+let answered = false;
+const results = new Array(QUESTIONS.length).fill(null);
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  answered = false;
+  const area = document.getElementById('quiz-area');
+
+  const optionsHtml = q.options.map((opt, i) =>
+    `<button class="option" data-idx="${i}" onclick="selectOption(${i})">${opt}</button>`
+  ).join('');
+
+  area.innerHTML = `
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" style="width:${(current / QUESTIONS.length) * 100}%"></div></div>
+      <div class="progress-label">${current + 1} / ${QUESTIONS.length}</div>
+    </div>
+    <div class="week-badge">${q.week}</div>
+    <div class="qcard">
+      <div class="qtext">${q.text}</div>
+      <div id="options">${optionsHtml}</div>
+      <div class="explain" id="explain"><b>Why:</b> ${q.explain}</div>
+    </div>
+    <div class="nav-row">
+      <span></span>
+      <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>
+        ${current === QUESTIONS.length - 1 ? 'See Results' : 'Next Question'}
+      </button>
+    </div>
+  `;
+}
+
+function selectOption(idx) {
+  if (answered) return;
+  answered = true;
+  const q = QUESTIONS[current];
+  const buttons = document.querySelectorAll('#options .option');
+  buttons.forEach((btn, i) => {
+    btn.classList.add('locked');
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx) btn.classList.add('wrong');
+    else btn.classList.add('dim');
+  });
+  document.getElementById('explain').classList.add('show');
+  document.getElementById('next-btn').disabled = false;
+  results[current] = (idx === q.correct);
+}
+
+function nextQuestion() {
+  if (current < QUESTIONS.length - 1) {
+    current++;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    renderResults();
+  }
+}
+
+function renderResults() {
+  const area = document.getElementById('quiz-area');
+  const total = results.filter(r => r === true).length;
+  const pct = Math.round((total / QUESTIONS.length) * 100);
+
+  const byWeek = {};
+  QUESTIONS.forEach((q, i) => {
+    if (!byWeek[q.week]) byWeek[q.week] = { correct: 0, total: 0 };
+    byWeek[q.week].total++;
+    if (results[i]) byWeek[q.week].correct++;
+  });
+
+  const weekRows = Object.keys(byWeek).map(wk => {
+    const d = byWeek[wk];
+    const weak = d.correct < d.total;
+    return `<div class="week-row">
+      <span class="wk-name">${wk}</span>
+      <span class="wk-score ${weak ? 'weak' : ''}">${d.correct} / ${d.total}</span>
+    </div>`;
+  }).join('');
+
+  let message = "Solid across the board — you're in good shape for the midterm.";
+  if (pct < 60) message = "Worth another pass through the weeks marked below before the exam.";
+  else if (pct < 85) message = "Good progress — take another look at the weeks marked below.";
+
+  area.innerHTML = `
+    <div class="results">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color:#6B7A85;">Review Complete</div>
+      <div class="score">${total} / ${QUESTIONS.length}</div>
+      <h2>${pct}% Correct</h2>
+      <p>${message}</p>
+      <div class="week-breakdown">${weekRows}</div>
+    </div>
+    <div class="nav-row" style="justify-content:center; margin-top:20px;">
+      <button class="btn btn-primary" onclick="restart()">Try Again</button>
+    </div>
+  `;
+}
+
+function restart() {
+  current = 0;
+  results.fill(null);
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestion();
+</script>
+
+</body>
+</html>
